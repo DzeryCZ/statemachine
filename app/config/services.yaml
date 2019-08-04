@@ -1,0 +1,7 @@
+parameters:
+  statemachine.config: '/app/src/ProcessOrderExample/Configuration/ProcessOrder.json'
+
+services:
+  Statemachine\Infrastructure\Json\LoadJsonInterface:
+    class: Statemachine\Infrastructure\Json\LoadJsonFromFile
+    arguments: ['%statemachine.config%']

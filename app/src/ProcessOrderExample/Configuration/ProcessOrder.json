@@ -1,0 +1,22 @@
+{
+  "initialState": "new",
+  "states": {
+    "new": {
+      "events": {
+        "PaymentReceived": {
+          "successState": "paid",
+          "failState": "paymentFailed",
+          "actions": [
+            "Statemachine\\Statemachine\\Actions\\ProcessPayment"
+          ]
+        }
+      }
+    },
+    "paid": {
+      "events": {}
+    },
+    "paymentFailed": {
+      "events": {}
+    }
+  }
+}
