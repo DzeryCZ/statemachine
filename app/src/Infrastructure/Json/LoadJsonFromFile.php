@@ -20,4 +20,3 @@ final class LoadJsonFromFile implements LoadJsonInterface
         return file_get_contents($this->pathToFile);
     }
 }
-

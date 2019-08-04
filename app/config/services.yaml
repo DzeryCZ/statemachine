@@ -2,6 +2,14 @@ parameters:
   statemachine.config: '/app/src/ProcessOrderExample/Configuration/ProcessOrder.json'
 
 services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
   Statemachine\Infrastructure\Json\LoadJsonInterface:
     class: Statemachine\Infrastructure\Json\LoadJsonFromFile
     arguments: ['%statemachine.config%']
+
+  Statemachine\Statemachine\Command\RunEvent:
+    class: Statemachine\Statemachine\Command\RunEvent
