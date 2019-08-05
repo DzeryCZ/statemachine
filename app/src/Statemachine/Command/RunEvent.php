@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace Statemachine\Statemachine\Command;
 
+use mysql_xdevapi\Exception;
 use Statemachine\Statemachine\Configuration\GetConfiguration;
+use Statemachine\Statemachine\Configuration\Structure\EventCollection;
+use Statemachine\Statemachine\Configuration\Structure\EventValueObject;
 use Statemachine\Statemachine\Entity\EntityInterface;
+use Statemachine\Statemachine\Exceptions\ActionIsNotCallableException;
 use Statemachine\Statemachine\Exceptions\TransitionIsNotAllowedException;
 use Throwable;
 
+// Todo - split this service - it has a lot of responsibility
 final class RunEvent
 {
     /** @var GetConfiguration  */
@@ -33,31 +38,31 @@ final class RunEvent
         $currentState = $entity->getState();
         $stateConfiguration = $this->configurationLoader->getOneState($currentState);
 
-        if (!$this->isTransitionAllowed($stateConfiguration, $eventName)) {
+        if (!$this->isTransitionAllowed($stateConfiguration->getEventCollection(), $eventName)) {
             // Todo - Log
             throw TransitionIsNotAllowedException::withData($currentState, $eventName);
         }
-        $event = $stateConfiguration[GetConfiguration::EVENTS_KEY][$eventName];
+        $event = $stateConfiguration->getEventCollection()->getByName($eventName);
         $this->processActions($entity, $event);
     }
 
     private function isTransitionAllowed(
-        array $stateConfiguration,
+        EventCollection $eventCollection,
         string $eventName
     ): bool {
-        return isset($stateConfiguration[GetConfiguration::EVENTS_KEY][$eventName]);
+        return !empty($eventCollection->getByName($eventName));
     }
 
     private function processActions(
         EntityInterface $entity,
-        array $event
+        EventValueObject $event
     ): void {
         try {
-            $this->runActions($entity, $event[GetConfiguration::ACTIONS_KEY]);
-            $this->moveEntityToStatus($entity, $event[GetConfiguration::SUCCESS_STATE_KEY]);
+            $this->runActions($entity, $event->getActions());
+            $this->moveEntityToStatus($entity, $event->getSuccessState());
         } catch (Throwable $exception) {
             // Todo - Log
-            $this->moveEntityToStatus($entity, $event[GetConfiguration::FAIL_STATE_KEY]);
+            $this->moveEntityToStatus($entity, $event->getFailState());
         }
     }
 
@@ -66,7 +71,13 @@ final class RunEvent
         array $actions
     ): void {
         foreach ($actions as $action) {
-            $action($entity);
+            $actionInstance = new $action(); // Todo - Move to DI factory
+
+            if (!is_callable($actionInstance)) {
+                throw ActionIsNotCallableException::withData($action);
+            }
+
+            $actionInstance($entity);
         }
     }
 

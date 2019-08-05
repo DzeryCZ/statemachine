@@ -7,9 +7,14 @@ services:
     autoconfigure: true
     public: false
 
-  Statemachine\Infrastructure\Json\LoadJsonInterface:
+  Statemachine\:
+    resource: '../src/*'
+    exclude: '../src/**/{Entity,*ValueObject.php,*Collection.php,app.php}'
+
+  Statemachine\Infrastructure\Json\LoadJsonFromFile:
     class: Statemachine\Infrastructure\Json\LoadJsonFromFile
     arguments: ['%statemachine.config%']
 
   Statemachine\Statemachine\Command\RunEvent:
     class: Statemachine\Statemachine\Command\RunEvent
+    public: true

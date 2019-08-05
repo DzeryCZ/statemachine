@@ -7,7 +7,7 @@ This project was created in order to practice DDD, SOLID, TDD, etc... techniques
 docker build -f ./_docker/Dockerfile -t statemachine .
 ```
 
-## Run transition
+## Run container
 ```bash
 docker run -it \
     -v $(pwd)/app:/app \
@@ -24,6 +24,11 @@ composer install
 php /app/src/app.php
 ```
 
+## Run PhpUnit tests - inside docker container
+```bash
+./vendor/bin/phpunit --configuration /app/tests/Unit/phpunit.xml.dist /app/tests/
+```
+
 ## Run PHPCS - inside docker container
 ```bash
 ./vendor/bin/phpcs --standard=ruleset.xml
@@ -36,7 +41,6 @@ php /app/src/app.php
 
 ## Todo
 - Logging
-- Autowiring problem
 - Fix PHPSTAN
 - DB integration
 - Tools

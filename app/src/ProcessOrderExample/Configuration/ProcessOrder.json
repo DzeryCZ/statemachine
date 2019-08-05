@@ -7,7 +7,7 @@
           "successState": "paid",
           "failState": "paymentFailed",
           "actions": [
-            "Statemachine\\Statemachine\\Actions\\ProcessPayment"
+            "Statemachine\\ProcessOrderExample\\Actions\\ProcessPayment"
           ]
         }
       }

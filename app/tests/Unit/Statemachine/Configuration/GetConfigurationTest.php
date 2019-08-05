@@ -7,6 +7,10 @@ namespace Statemachine\Test\Unit\Staemachine\Configuration;
 use PHPUnit\Framework\TestCase;
 use Statemachine\Infrastructure\Json\GetJsonInterface;
 use Statemachine\Statemachine\Configuration\GetConfiguration;
+use Statemachine\Statemachine\Configuration\Structure\EventCollection;
+use Statemachine\Statemachine\Configuration\Structure\EventValueObject;
+use Statemachine\Statemachine\Configuration\Structure\StateCollection;
+use Statemachine\Statemachine\Configuration\Structure\StateValueObject;
 
 class GetConfigurationTest extends TestCase
 {
@@ -14,40 +18,54 @@ class GetConfigurationTest extends TestCase
 
     /** @var \PHPUnit\Framework\MockObject\MockObject|GetJsonInterface */
     private $configurationMock;
+    private $config = [
+        GetConfiguration::STATES_KEY => [
+            self::STATE_1 => [
+                GetConfiguration::EVENTS_KEY => [
+                    'testEvent' => [
+                        'successState' => '',
+                        'failState' => '',
+                        'actions' => [],
+                    ],
+                ],
+            ],
+        ],
+    ];
 
     public function setUp(): void
     {
         $this->configurationMock = $this->getConfigurationMock();
     }
 
-    public function testGetAll(): void {
-        $expectedResult = [
-            self::STATE_1 => 'blah',
-        ];
+    public function testGetAll(): void
+    {
+        $expectedStateCollection = new StateCollection($this->config[GetConfiguration::STATES_KEY]);
 
         $this->configurationMock->expects($this->once())
             ->method('get')
-            ->willReturn($expectedResult);
+            ->willReturn($this->config);
 
         $getConfigurationService = new GetConfiguration($this->configurationMock);
         $resultConfiguration = $getConfigurationService->getAll();
 
-        $this->assertEquals($expectedResult, $resultConfiguration);
+        $this->assertEquals($expectedStateCollection, $resultConfiguration);
     }
 
-    public function testGetOneState(): void {
-        $expectedResult = [
-            self::STATE_1 => ['some' => 'content'],
-        ];
+    public function testGetOneState(): void
+    {
+        $expectedStateValueObject = new StateValueObject(
+            $this->config[GetConfiguration::STATES_KEY][self::STATE_1],
+            self::STATE_1
+        );
 
         $this->configurationMock->expects($this->once())
             ->method('get')
-            ->willReturn($expectedResult);
+            ->willReturn($this->config);
 
         $getConfigurationService = new GetConfiguration($this->configurationMock);
         $resultStateConfiguration = $getConfigurationService->getOneState(self::STATE_1);
 
-        $this->assertEquals($expectedResult[self::STATE_1], $resultStateConfiguration);
+        $this->assertEquals($expectedStateValueObject, $resultStateConfiguration);
     }
 
 

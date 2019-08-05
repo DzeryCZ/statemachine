@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Statemachine\ProcessOrderExample\Entity\Order;
 use Statemachine\Statemachine\Command\RunEvent;
 use Statemachine\Statemachine\Configuration\GetConfiguration;
+use Statemachine\Statemachine\Configuration\Structure\StateValueObject;
 
 class RunEventTest extends TestCase
 {
@@ -17,12 +18,16 @@ class RunEventTest extends TestCase
     /** @var \PHPUnit\Framework\MockObject\MockObject|GetConfiguration */
     private $configurationLoaderMock;
 
-    private $stateConfigurations = [
-        GetConfiguration::EVENTS_KEY => [
-            self::EVENT_NAME => [
-                GetConfiguration::SUCCESS_STATE_KEY => 'paid',
-                GetConfiguration::FAIL_STATE_KEY => 'paymentFailed',
-                GetConfiguration::ACTIONS_KEY => [],
+    private $config = [
+        GetConfiguration::STATES_KEY => [
+            self::CURRENT_STATE => [
+                GetConfiguration::EVENTS_KEY => [
+                    'testEvent' => [
+                        'successState' => '',
+                        'failState' => '',
+                        'actions' => [],
+                    ],
+                ],
             ],
         ],
     ];
@@ -37,13 +42,16 @@ class RunEventTest extends TestCase
         $orderEntity = new Order();
         $orderEntity->setState(self::CURRENT_STATE);
 
+        $state = new StateValueObject(
+            $this->config[GetConfiguration::STATES_KEY][self::CURRENT_STATE],
+            self::CURRENT_STATE
+        );
         $this->configurationLoaderMock->expects($this->once())
             ->method('getOneState')
-            ->willReturn($this->stateConfigurations);
+            ->willReturn($state);
 
         $runEventService = new RunEvent($this->configurationLoaderMock);
         $runEventService->run($orderEntity, self::EVENT_NAME);
-
     }
 
     /**

@@ -29,9 +29,7 @@ final class GetJson implements GetJsonInterface
         $json = json_decode($jsonString, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new ConfigurationFileCouldNotBeParsedException(
-                'Statemachine configuration could not be loaded'
-            );
+            throw ConfigurationFileCouldNotBeParsedException::create();
         }
 
         return $json;

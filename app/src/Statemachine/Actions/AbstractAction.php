@@ -8,5 +8,5 @@ use Statemachine\Statemachine\Entity\EntityInterface;
 
 abstract class AbstractAction
 {
-    abstract public function invoke(EntityInterface $entity);
+    abstract public function __invoke(EntityInterface $entity);
 }
